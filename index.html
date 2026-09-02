@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHIPSINN PRO - FINAL</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#08080e;color:#eee}
+header{padding:14px;background:#12121f;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
+.logo{font-weight:900;font-size:20px}.logo span{color:#ff2d7a}
+.btn{border:none;padding:10px 16px;border-radius:10px;font-weight:800;cursor:pointer}
+.btn-pink{background:#ff2d7a;color:white}
+.btn-dark{background:#1e1e32;color:white;border:1px solid #333}
+.btn-ghost{background:transparent;color:#888;border:1px solid #333}
+.card{background:#12121f;border:1px solid #222;border-radius:14px;padding:14px;margin-bottom:12px}
+input,select{width:100%;padding:11px;background:#1b1b2e;border:1px solid #333;color:white;border-radius:10px;margin-top:4px}
+label{font-size:10px;color:#888;text-transform:uppercase;font-weight:700;margin-top:8px;display:block}
+.grid{display:grid;gap:10px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+table{width:100%;border-collapse:collapse}th{color:#888;font-size:10px;text-align:left;padding:8px;border-bottom:1px solid #222}td{padding:8px;border-bottom:1px solid #1a1a1a;font-size:13px}
+.hidden{display:none!important}
+#loginPage{height:100vh;display:grid;place-items:center;padding:20px;background:#08080e}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+<div class="card" style="width:100%;max-width:380px">
+<h1 class="logo" style="text-align:center;font-size:28px">CHIPSINN<span>PRO</span></h1>
+<p style="text-align:center;color:#888;font-size:11px;margin:10px 0">FINAL VERSION - GUARANTEED TO RUN IN ACODE</p>
+<label>Username</label>
+<input id="userInput" placeholder="creator / owner / customer" value="creator">
+<label>Password</label>
+<input id="passInput" type="password" placeholder="Enter password" value="Creator@2026!">
+<button class="btn btn-pink" style="width:100%;margin-top:12px;padding:13px" onclick="loginNow()">LOGIN NOW</button>
+<div style="display:flex;gap:6px;margin-top:8px">
+<button class="btn btn-dark" style="flex:1" onclick="setLogin('owner')">Owner</button>
+<button class="btn btn-dark" style="flex:1" onclick="setLogin('creator')">Creator</button>
+<button class="btn btn-ghost" style="flex:1" onclick="setLogin('customer')">Customer</button>
+</div>
+<p id="errorMsg" style="color:#ff3b5c;text-align:center;font-size:12px;margin-top:10px;min-height:16px"></p>
+<div style="background:#0f0f1a;padding:8px;border-radius:8px;margin-top:10px;font-size:11px;color:#888">
+<b>Logins:</b><br>
+Creator: creator / Creator@2026!<br>
+Owner: owner / Owner@2026!<br>
+Customer: customer (leave password empty)<br><br>
+Creator can block owner, edit business name, edit all passwords.
+</div>
+<button class="btn btn-ghost" style="width:100%;margin-top:8px;font-size:11px" onclick="wipeAll()">WIPE & RESET IF STUCK</button>
+</div>
+</div>
+
+<!-- APP -->
+<div id="appPage" class="hidden">
+<header>
+<div><div class="logo" id="bizLogo">CHIPSINN<span>PRO</span></div><small id="whoIs" style="color:#888"></small></div>
+<button class="btn btn-ghost" onclick="logoutNow()">Logout</button>
+</header>
+
+<div style="padding:12px;max-width:1200px;margin:0 auto" class="grid">
+
+<!-- CREATOR ONLY -->
+<div id="creatorBox" class="hidden">
+<div class="card" style="border:1px solid #ff2d7a">
+<b style="color:#ff2d7a">CREATOR SUPER ADMIN - YOU</b>
+<div class="g2 grid" style="margin-top:10px">
+<div><label>Business Name (Editable Per Client)</label><input id="bizNameInput"><button class="btn btn-pink" style="width:100%;margin-top:6px" onclick="saveBizName()">Save Name</button></div>
+<div><label>Inflation % (adds to all prices)</label><input id="inflationInput" type="number" placeholder="0"><button class="btn btn-dark" style="width:100%;margin-top:6px" onclick="saveInflation()">Apply Inflation</button></div>
+</div>
+<div style="background:#1a0f1a;padding:10px;border-radius:10px;margin-top:10px">
+<label>New Creator Password (only you)</label><input id="newCreatorPass" type="password">
+<label>Owner Username</label><input id="newOwnerUser">
+<label>Owner Password</label><input id="newOwnerPass" type="password">
+<button class="btn btn-pink" style="width:100%;margin-top:8px" onclick="savePasswords()">UPDATE PASSWORDS</button>
+<div class="g2 grid" style="margin-top:8px">
+<button class="btn" style="background:red;color:white" onclick="blockOwner(true)">BLOCK OWNER (No Pay)</button>
+<button class="btn btn-dark" onclick="blockOwner(false)">UNBLOCK OWNER</button>
+</div>
+<p id="secInfo" style="color:#00e676;font-size:11px;margin-top:6px"></p>
+</div>
+</div>
+</div>
+
+<div id="statsBox"></div>
+
+<div class="g2 grid">
+<div class="card">
+<b>POS - Scan Barcode</b><br><small style="color:#888">Type barcode or ID then Add</small>
+<div style="display:flex;gap:6px;margin-top:8px">
+<input id="barcodeInput" placeholder="Enter barcode e.g., 001">
+<button class="btn btn-pink" onclick="addByBarcode()">Add</button>
+</div>
+<div id="cartBox" style="margin-top:10px"></div>
+<div style="display:flex;justify-content:space-between;font-weight:900;margin-top:8px"><span>Total</span><span id="totalPrice">KSh 0</span></div>
+<input id="customerInput" placeholder="Customer / Car Plate / Table" style="margin-top:8px">
+<select id="paymentSelect" style="margin-top:6px"><option>Cash</option><option>M-Pesa</option><option>Credit</option></select>
+<button class="btn btn-pink" style="width:100%;margin-top:8px;padding:13px" onclick="finishSale()">COMPLETE SALE</button>
+<button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="clearCartBox()">Clear Cart</button>
+</div>
+
+<div class="card">
+<b>Add New Stock Item</b>
+<label>Name</label><input id="itemName" placeholder="Samosa / Chips / Water">
+<label>Category</label><select id="itemCat"><option>Chips Inn</option><option>Car Wash</option><option>Water Refill</option><option>Drinks</option><option>Other</option></select>
+<div class="g2 grid">
+<div><label>Selling Price</label><input id="itemPrice" type="number"></div>
+<div><label>Cost Price</label><input id="itemCost" type="number"></div>
+<div><label>Stock Qty</label><input id="itemStock" type="number"></div>
+<div><label>Barcode</label><input id="itemBarcode" placeholder="e.g., 006"></div>
+</div>
+<label>Unit</label><input id="itemUnit" placeholder="plate / pcs / bottle / service">
+<button class="btn btn-pink" style="width:100%;margin-top:10px" onclick="addNewItem()">ADD TO STOCK</button>
+</div>
+</div>
+
+<!-- CUSTOMER MENU -->
+<div id="customerMenuBox">
+<div class="card" style="border-color:#ff2d7a"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><b>Customer Menu</b><div style="display:flex;gap:6px"><button class="btn btn-pink" style="padding:6px 8px;font-size:11px" onclick="showMenu('Chips Inn')">Chips Inn</button><button class="btn btn-dark" style="padding:6px 8px;font-size:11px" onclick="showMenu('Car Wash')">Car Wash</button><button class="btn btn-dark" style="padding:6px 8px;font-size:11px" onclick="showMenu('Water Refill')">Water</button><button class="btn btn-ghost" style="padding:6px 8px;font-size:11px" onclick="showMenu('all')">All</button></div></div></div>
+<div id="menuGrid" class="g3 grid"></div>
+</div>
+
+<!-- STOCK TABLE -->
+<div class="card"><div style="display:flex;justify-content:space-between"><b>Stock Control - Each Item Separate</b><input id="searchBox" placeholder="Search" oninput="renderStockTable(this.value)" style="width:130px"></div><div style="overflow:auto;margin-top:8px"><table><thead><tr><th>ID/Barcode</th><th>Name</th><th>Cat</th><th>Price</th><th>Stock</th><th>Action</th></tr></thead><tbody id="stockBody"></tbody></table></div></div>
+
+<div class="card"><b>Sales - Date + Exact Time</b><div style="overflow:auto"><table><thead><tr><th>Date Time</th><th>Customer</th><th>Total</th><th>Profit</th><th>Items</th></tr></thead><tbody id="salesBody"></tbody></table></div></div>
+
+</div>
+</div>
+
+<script>
+// --- DATABASE ---
+function getData(){
+let d = localStorage.getItem('FINAL_CHIPSINN_DB');
+if(!d){
+let fresh = {
+meta:{name:"ChipsInn Pro",inflation:0},
+auth:{creator:{u:"creator",p:"Creator@2026!"},owner:{u:"owner",p:"Owner@2026!"},blocked:false},
+stock:[
+{id:"CH001",name:"Chips Regular",cat:"Chips Inn",price:150,cost:80,stock:100,barcode:"001",unit:"plate"},
+{id:"CH002",name:"Chips Large",cat:"Chips Inn",price:250,cost:130,stock:80,barcode:"002",unit:"plate"},
+{id:"CK001",name:"Chicken 2pcs + Chips",cat:"Chips Inn",price:450,cost:250,stock:50,barcode:"003",unit:"plate"},
+{id:"SS001",name:"Sausage",cat:"Chips Inn",price:60,cost:35,stock:150,barcode:"005",unit:"pcs"},
+{id:"SM001",name:"Samosa",cat:"Chips Inn",price:40,cost:20,stock:150,barcode:"006",unit:"pcs"},
+{id:"DR001",name:"Soda 500ml",cat:"Drinks",price:80,cost:45,stock:120,barcode:"301",unit:"bottle"},
+{id:"CW001",name:"Car Wash Small Car",cat:"Car Wash",price:300,cost:50,stock:9999,barcode:"101",unit:"service"},
+{id:"CW002",name:"Car Wash SUV",cat:"Car Wash",price:500,cost:80,stock:9999,barcode:"102",unit:"service"},
+{id:"WR001",name:"Water Refill 20L",cat:"Water Refill",price:100,cost:20,stock:200,barcode:"201",unit:"jerrican"}
+],
+sales:[]
+};
+localStorage.setItem('FINAL_CHIPSINN_DB', JSON.stringify(fresh));
+return fresh;
+}
+return JSON.parse(d);
+}
+function saveData(db){localStorage.setItem('FINAL_CHIPSINN_DB', JSON.stringify(db));}
+
+let DB = getData();
+let CART = [];
+let currentFilter = 'all';
+
+function setLogin(type){
+const u = document.getElementById('userInput');
+const p = document.getElementById('passInput');
+if(type==='creator'){u.value='creator';p.value='Creator@2026!';}
+if(type==='owner'){u.value='owner';p.value='Owner@2026!';}
+if(type==='customer'){u.value='customer';p.value='';}
+}
+
+function wipeAll(){
+if(confirm('Wipe everything and reset?')){localStorage.removeItem('FINAL_CHIPSINN_DB');localStorage.removeItem('FINAL_ROLE');DB=getData();document.getElementById('errorMsg').innerText='Wiped! Now login with creator / Creator@2026!';}
+}
+
+function loginNow(){
+DB = getData();
+let user = document.getElementById('userInput').value.trim();
+let pass = document.getElementById('passInput').value;
+let err = document.getElementById('errorMsg');
+err.innerText='';
+
+if(DB.auth.blocked && user !== DB.auth.creator.u){
+err.innerText='SYSTEM BLOCKED BY CREATOR. Contact developer to unblock.';
+return;
+}
+
+let role = '';
+if(user === DB.auth.creator.u && pass === DB.auth.creator.p){role='creator';}
+else if(user === DB.auth.owner.u && pass === DB.auth.owner.p){role='owner';}
+else if(user.toLowerCase() === 'customer'){role='customer';}
+else{err.innerText='Wrong username or password! Use creator / Creator@2026! (capital C and !)';return;}
+
+localStorage.setItem('FINAL_ROLE', role);
+openApp(role);
+}
+
+function openApp(role){
+if(!role) role = localStorage.getItem('FINAL_ROLE');
+if(!role) return;
+document.getElementById('loginPage').classList.add('hidden');
+document.getElementById('appPage').classList.remove('hidden');
+DB = getData();
+document.getElementById('bizLogo').innerHTML = DB.meta.name.toUpperCase() + '<span>PRO</span>';
+document.getElementById('whoIs').innerText = role.toUpperCase() + ' • ' + new Date().toLocaleString();
+document.getElementById('bizNameInput').value = DB.meta.name;
+document.getElementById('inflationInput').value = DB.meta.inflation;
+
+let creatorBox = document.getElementById('creatorBox');
+let custBox = document.getElementById('customerMenuBox');
+if(role==='creator'){creatorBox.classList.remove('hidden');}
+else{creatorBox.classList.add('hidden');}
+
+renderAll();
+}
+
+function logoutNow(){localStorage.removeItem('FINAL_ROLE');location.reload();}
+
+function renderAll(){DB=getData();renderStockTable();renderMenuGrid();renderCart();renderStats();}
+
+function renderStockTable(filter=''){
+let body = document.getElementById('stockBody');
+body.innerHTML='';
+let list = DB.stock;
+if(filter){let f=filter.toLowerCase();list=list.filter(s=>s.name.toLowerCase().includes(f)||s.barcode.includes(f)||s.cat.toLowerCase().includes(f)||s.id.toLowerCase().includes(f));}
+list.forEach(it=>{
+let price = Math.round(it.price * (1 + (DB.meta.inflation||0)/100));
+let low = it.stock <= 10 && it.cat !== 'Car Wash' ? 'style="color:red;font-weight:900"' : '';
+body.innerHTML+=`<tr><td><b>${it.id}</b><br><small>${it.barcode}</small></td><td>${it.name}</td><td>${it.cat}</td><td>KSh ${price}</td><td ${low}>${it.stock}</td><td><button class="btn btn-dark" style="padding:4px 6px;font-size:11px" onclick="editItem('${it.id}')">Edit</button> <button class="btn btn-ghost" style="padding:4px 6px;font-size:11px" onclick="deleteItem('${it.id}')">X</button></td></tr>`;
+});
+}
+
+function renderMenuGrid(){
+let grid = document.getElementById('menuGrid');
+grid.innerHTML='';
+let list = DB.stock.filter(s=>s.stock>0 || s.cat==='Car Wash');
+if(currentFilter!=='all') list = list.filter(s=>s.cat===currentFilter);
+list.forEach(it=>{
+let price = Math.round(it.price * (1 + (DB.meta.inflation||0)/100));
+grid.innerHTML+=`<div class="card"><b>${it.name}</b><br><small style="color:#888">${it.cat} • Stock ${it.stock} • ${it.barcode}</small><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><b style="color:#ff2d7a">KSh ${price}</b><button class="btn btn-pink" style="padding:6px 10px" onclick="addToCart('${it.id}')">Add +</button></div></div>`;
+});
+}
+
+function showMenu(cat){currentFilter = cat;renderMenuGrid();}
+
+function addToCart(id){
+let item = DB.stock.find(s=>s.id===id);
+let sell = Math.round(item.price * (1 + (DB.meta.inflation||0)/100));
+let found = CART.find(c=>c.id===id);
+if(found) found.qty++;
+else CART.push({id:item.id,name:item.name,qty:1,sell:sell,cost:item.cost,barcode:item.barcode});
+renderCart();
+}
+
+function addByBarcode(){
+let code = document.getElementById('barcodeInput').value.trim();
+if(!code){alert('Enter barcode');return;}
+let item = DB.stock.find(s=>s.barcode===code || s.id===code);
+if(!item){alert('Barcode not found: '+code);return;}
+addToCart(item.id);
+document.getElementById('barcodeInput').value='';
+}
+
+function renderCart(){
+let box = document.getElementById('cartBox');
+let totalEl = document.getElementById('totalPrice');
+let total = 0;
+box.innerHTML='';
+CART.forEach(c=>{
+total+=c.sell*c.qty;
+box.innerHTML+=`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1a1a"><span>${c.qty}x ${c.name}</span><span>KSh ${c.sell*c.qty} <button onclick="removeCart('${c.id}')" style="background:none;border:none;color:red;cursor:pointer">X</button></span></div>`;
+});
+totalEl.innerText='KSh '+total;
+}
+
+function removeCart(id){CART=CART.filter(c=>c.id!==id);renderCart();}
+function clearCartBox(){CART=[];renderCart();}
+
+function finishSale(){
+if(CART.length===0){alert('Cart empty');return;}
+let total = CART.reduce((s,c)=>s+c.sell*c.qty,0);
+let cost = CART.reduce((s,c)=>s+c.cost*c.qty,0);
+let profit = total-cost;
+let sale = {id:'SL'+Date.now(),date:new Date().toISOString(),customer:document.getElementById('customerInput').value||'Walk-in',total:total,profit:profit,items:CART.map(c=>c.qty+'x '+c.name).join(', '),pay:document.getElementById('paymentSelect').value};
+DB.sales.unshift(sale);
+CART.forEach(c=>{
+let st = DB.stock.find(s=>s.id===c.id);
+if(st && st.cat!=='Car Wash') st.stock-=c.qty;
+});
+saveData(DB);
+CART=[];
+renderAll();
+alert('SALE DONE: '+sale.id+'\nTotal KSh '+total+'\nProfit KSh '+profit);
+}
+
+function addNewItem(){
+let name=document.getElementById('itemName').value.trim();
+let cat=document.getElementById('itemCat').value;
+let price=parseFloat(document.getElementById('itemPrice').value);
+let cost=parseFloat(document.getElementById('itemCost').value);
+let stock=parseInt(document.getElementById('itemStock').value)||0;
+let barcode=document.getElementById('itemBarcode').value.trim();
+let unit=document.getElementById('itemUnit').value||'pcs';
+if(!name||!price){alert('Name and Price required');return;}
+let id=cat.substring(0,2).toUpperCase()+Date.now().toString().slice(-4);
+DB.stock.push({id:id,name:name,cat:cat,price:price,cost:cost||price*0.6,stock:stock,barcode:barcode||id,unit:unit});
+saveData(DB);
+document.getElementById('itemName').value='';document.getElementById('itemPrice').value='';document.getElementById('itemStock').value='';document.getElementById('itemBarcode').value='';
+renderAll();
+}
+
+function editItem(id){
+let it=DB.stock.find(s=>s.id===id);
+let np=prompt('New Price',it.price);
+if(np!==null) it.price=parseFloat(np);
+let ns=prompt('New Stock',it.stock);
+if(ns!==null) it.stock=parseInt(ns);
+saveData(DB);renderAll();
+}
+
+function deleteItem(id){if(!confirm('Delete?'))return;DB.stock=DB.stock.filter(s=>s.id!==id);saveData(DB);renderAll();}
+
+function renderStats(){
+let total=DB.sales.reduce((s,x)=>s+x.total,0);
+let profit=DB.sales.reduce((s,x)=>s+x.profit,0);
+let today=DB.sales.filter(s=>new Date(s.date).toDateString()===new Date().toDateString()).reduce((s,x)=>s+x.total,0);
+let advice='';
+let low=DB.stock.filter(s=>s.stock<=10 && s.cat!=='Car Wash');
+if(low.length>0) advice+='LOW STOCK: '+low.map(l=>l.name+' ('+l.stock+')').join(', ')+'<br>';
+else advice+='Stock OK. Push combo Chips+Chicken+Soda.<br>';
+if(profit/total<0.25 && total>0) advice+='Margin low, increase price 5%<br>';
+
+document.getElementById('statsBox').innerHTML=`<div class="g2 grid" style="grid-template-columns:repeat(3,1fr)"><div class="card"><small style="color:#888">TODAY</small><h2>KSh ${today}</h2></div><div class="card"><small style="color:#888">TOTAL SALES</small><h2>KSh ${total}</h2></div><div class="card"><small style="color:#888">PROFIT</small><h2 style="color:${profit>=0?'#00e676':'red'}">KSh ${profit}</h2></div></div><div class="card"><b>Advice & Next Stock</b><br><small style="color:#aaa">${advice}</small></div>`;
+
+let sb=document.getElementById('salesBody');
+sb.innerHTML='';
+DB.sales.slice(0,80).forEach(s=>{
+let d=new Date(s.date);
+sb.innerHTML+=`<tr><td>${d.toLocaleDateString()} ${d.toLocaleTimeString()}</td><td>${s.customer}</td><td>KSh ${s.total}</td><td style="color:${s.profit>=0?'#00e676':'red'}">KSh ${s.profit}</td><td><small>${s.items}</small></td></tr>`;
+});
+}
+
+function saveBizName(){let v=document.getElementById('bizNameInput').value.trim();if(!v)return;DB.meta.name=v;saveData(DB);document.getElementById('bizLogo').innerHTML=v.toUpperCase()+'<span>PRO</span>';alert('Business name saved: '+v);}
+function saveInflation(){let v=parseFloat(document.getElementById('inflationInput').value)||0;DB.meta.inflation=v;saveData(DB);renderAll();alert('Inflation set to '+v+'%');}
+function savePasswords(){
+let c=document.getElementById('newCreatorPass').value;
+let ou=document.getElementById('newOwnerUser').value.trim();
+let op=document.getElementById('newOwnerPass').value;
+if(c) DB.auth.creator.p=c;
+if(ou) DB.auth.owner.u=ou;
+if(op) DB.auth.owner.p=op;
+saveData(DB);
+document.getElementById('secInfo').innerText='Passwords updated! Creator can only edit creator.';
+}
+function blockOwner(b){DB.auth.blocked=b;saveData(DB);document.getElementById('secInfo').innerText=b?'OWNER BLOCKED':'OWNER UNBLOCKED';}
+
+// AUTO LOGIN IF ALREADY LOGGED
+window.onload=function(){
+let role=localStorage.getItem('FINAL_ROLE');
+if(role){openApp(role);}
+document.getElementById('passInput').addEventListener('keydown',function(e){if(e.key==='Enter')loginNow();});
+};
+</script>
+</body>
+</html>
